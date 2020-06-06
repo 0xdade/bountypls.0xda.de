@@ -1,0 +1,669 @@
+<html>
+<head>
+        <title>Bounty pls</title>
+        <style>
+                /*basic reset*/
+                * {
+                        margin: 0;
+                        padding: 0;
+                }
+                /*adding a black bg to the body to make things clearer*/
+                canvas {
+                        display: block;
+                        position: fixed;
+                }
+                body {
+                        height: 100%;
+                        background:black;
+                }
+                .cont {
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align:center;
+                }
+                .text-container {
+                        width:50%;
+                        margin:0 auto;
+                        color: white;
+                        z-index: 999999;
+                }
+                button {
+                        background-color: #4CAF50;
+                        border: none;
+                        color: white;
+                        padding: 15px 32px;
+                        text-align: center;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-size: 16px;
+                        margin-top: 1rem;
+                }
+        </style>
+</head>
+<body>
+        <canvas id="c"></canvas>
+        <div class="cont">
+                <div class="text-container">
+                        <h2 id="bountytext"></h2>
+                        <button id="bountyPls">Bounty Pls</button>
+                </div>
+        </div>
+</body>
+<script>
+// shamelessly jacked the matrix background from codepen:
+// https://codepen.io/P3R0/pen/MwgoKv
+var c = document.getElementById("c");
+var ctx = c.getContext("2d");
+
+//making the canvas full screen
+c.height = window.innerHeight;
+c.width = window.innerWidth;
+
+//chinese characters - taken from the unicode charset
+var chinese = "田由甲申甴电甶男甸甹町画甼甽甾甿畀畁畂畃畄畅畆畇畈畉畊畋界畍畎畏畐畑";
+//converting the string into an array of single characters
+chinese = chinese.split("");
+
+var font_size = 10;
+var columns = c.width/font_size; //number of columns for the rain
+//an array of drops - one per column
+var drops = [];
+//x below is the x coordinate
+//1 = y co-ordinate of the drop(same for every drop initially)
+for(var x = 0; x < columns; x++)
+        drops[x] = 1;
+
+//drawing the characters
+function draw()
+{
+        //Black BG for the canvas
+        //translucent BG to show trail
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        ctx.fillStyle = "#0F0"; //green text
+        ctx.font = font_size + "px arial";
+        //looping over drops
+        for(var i = 0; i < drops.length; i++)
+        {
+                //a random chinese character to print
+                var text = chinese[Math.floor(Math.random()*chinese.length)];
+                //x = i*font_size, y = value of drops[i]*font_size
+                ctx.fillText(text, i*font_size, drops[i]*font_size);
+
+                //sending the drop back to the top randomly after it has crossed the screen
+                //adding a randomness to the reset to make the drops scattered on the Y axis
+                if(drops[i]*font_size > c.height && Math.random() > 0.975)
+                        drops[i] = 0;
+
+                //incrementing Y coordinate
+                drops[i]++;
+        }
+}
+
+setInterval(draw, 33);
+
+
+function selectRandomElement(array) {
+        var element = array[Math.floor(Math.random() * array.length)];
+        return element
+}
+
+function selectWeightedRandom(prob) {
+        let i, sum=0, r=Math.random();
+        for (i in prob) {
+                sum += prob[i];
+                if (r <= sum) return i;
+        }
+}
+
+function buildRandomBugBounty(methods, payouts, weights, platforms) {
+        var vowels = '^[aieoAIEO].*'
+        var method_article = 'a'
+        const method = selectRandomElement(methods)
+        if (method.match(vowels)) {
+                method_article = 'an'
+        }
+        const payout = selectRandomElement(payouts)
+        const platform = selectWeightedRandom(weights)
+        var target = ''
+        var output = ''
+        if (platform === 'crime') {
+                target = selectRandomElement([...platforms['HackerOne'], ...platforms['Bugcrowd']])
+                output = `Thanks to ${platform}, I just got ${payout} from an unnamed buyer by exploiting ${method_article} ${method} vulnerability against ${target}`
+        } else {
+                target = selectRandomElement(platforms[platform])
+                output = `Thanks to ${platform}, I just got ${payout} from ${target} by exploiting ${method_article} ${method} vulnerability`
+        }
+        document.getElementById('bountytext').innerText = output
+}
+
+// This is just a list of random things I thought of
+const methods = [
+        'reflected xss',
+        'self xss',
+        'persistent xss',
+        'xxe',
+        'lpe',
+        'rce',
+        'open redirect',
+        'csrf',
+        'ssrf',
+        'sqli',
+        'deserialization',
+        'command injection',
+        'nosql injection',
+        'template injection',
+        'missing http headers',
+        'insecure ssl settings',
+        'subdomain takeover',
+        'an unnamed cve',
+        'buffer overflow',
+        'memory corruption',
+        'stack overflow',
+        'man in the middle',
+        'use after free',
+        'out of bounds read',
+        'buffer underflow',
+        'path traversal',
+        'information disclosure',
+        'open s3 bucket',
+        'unauthenticated elasticsearch'
+]
+
+const payouts = [
+        '$0',
+        '$0 and a t-shirt',
+        '$50',
+        '$100',
+        '$250',
+        '$500',
+        '$666',
+        '$777',
+        '$1,000',
+        '$1,337',
+        '$2,500',
+        '$5,000',
+        '$7,500',
+        '$10,000',
+        '$25,000',
+        '$31,337',
+        '$50,000',
+        '$100,000'
+]
+
+const platform_weights = {
+        'HackerOne': 0.39,
+        'Bugcrowd': 0.39,
+        'OpenBugBounty': 0.19,
+        'crime': 0.03
+}
+
+const bounty_platforms = {
+/*
+        https://hackerone.com/directory/programs
+        myArray = []
+        document.getElementsByClassName('spec-profile-name').forEach((item) => { myArray.push(item.text)});
+        copy(myArray)
+*/
+        'HackerOne': [
+                "Amazon Vulnerability Research Program",
+                "Facebook",
+                "Alibaba BBP",
+                "Tencent",
+                "BTFS",
+                "Symbol",
+                "BMW Group",
+                "Fortmatic Inc.",
+                "Qulture.Rocks",
+                "Staging.every.org",
+                "PegaSys",
+                "Myndr",
+                "DigitalOcean",
+                "Glassdoor",
+                "Orion Labs",
+                "Helium",
+                "Google API Security Rewards Program",
+                "PicsArt",
+                "Kindred Group",
+                "Evernote",
+                "HCL Software Inc.",
+                "Endless Hosting",
+                "Koho",
+                "Monolith",
+                "Celo",
+                "Marriott Vulnerability Disclosure Program",
+                "Visma Public",
+                "bunq vdp",
+                "REM-B Hydraulics",
+                "GoodRx",
+                "Roblox",
+                "Insolar",
+                "InvestNext",
+                "Nutanix",
+                "Topcoder",
+                "KOPIKAS ENTERTAINMENT OÜ",
+                "Curve",
+                "LifeOmic",
+                "Kubernetes",
+                "DRIVE.NET, Inc.",
+                "Ping Identity",
+                "8x8",
+                "Palo Alto Software",
+                "MTN Group",
+                "DataStax",
+                "LendingHome",
+                "Zenly",
+                "Polymail, Inc.",
+                "NordVPN",
+                "PUBG",
+                "Genasys Technologies",
+                "Streak",
+                "LINE",
+                "GitHub Security Lab",
+                "Stripo Inc",
+                "Pillar Project Worldwide Limited",
+                "Oasis Protocol Foundation",
+                "FileZilla",
+                "Natur.com GmbH",
+                "MobiSystems Ltd.",
+                "Gmelius",
+                "Logitech VDP",
+                "lemlist",
+                "KeyBank",
+                "Prospect.io",
+                "Worklytics",
+                "Allegro",
+                "Top Echelon Software",
+                "Coda",
+                "AODocs",
+                "JNJ Mobile",
+                "GovTech VDP",
+                "Railto LLC",
+                "Mixin",
+                "Mailtime Technology Inc.",
+                "pixiv",
+                "Amitree Inc",
+                "Libra",
+                "savedroid",
+                "NCSC UK ",
+                "dfuse Platform Inc.",
+                "ForeScout Technologies",
+                "Maker Ecosystem Growth Holdings, Inc",
+                "AT&T",
+                "Equifax",
+                "Refereum",
+                "Kartpay",
+                "Upgrade",
+                "Solidus",
+                "Trint Ltd",
+                "Squid Cache (IBB)",
+                "ecobee",
+                "Notepad++",
+                "DefectDojo",
+                "Chainlink",
+                "phpBB",
+                "Priceline",
+                "curl",
+                "Vercel",
+                "TomTom",
+                "Sweatco Ltd",
+                "Livestream",
+                "Xilinx",
+                "Python Cryptographic Authority",
+                "Capital One",
+                "Backblaze",
+                "Smartsheet",
+                "Trustpilot",
+                "Lob",
+                "UMA Project",
+                "InnoGames",
+                "Tube8",
+                "Starling Bank Limited",
+                "Credit Karma",
+                "Central Security Project",
+                "Omise",
+                "Postmates",
+                "Magento",
+                "Ford",
+                "Hyatt Hotels",
+                "CFP Time",
+                "Grammarly",
+                "RATELIMITED",
+                "Avito",
+                "FanDuel",
+                "Hanno's projects",
+                "Smule",
+                "Flickr",
+                "Casper",
+                "Vivy",
+                "Matomo",
+                "ESLint",
+                "OpenVPN",
+                "VeraCrypt",
+                "PayPal",
+                "MariaDB",
+                "Chaturbate",
+                "IBM",
+                "Tron Foundation",
+                "Augur",
+                "Internet Freedom (IBB)",
+                "arkadiyt-projects",
+                "Liberapay",
+                "Block.one",
+                "Tendermint",
+                "DuckDuckGo",
+                "Crypto.com",
+                "Passit",
+                "Loofah",
+                "Node.js",
+                "Nokogiri",
+                "JamieWeb",
+                "Toyota",
+                "IOVLabs",
+                "BitMEX",
+                "passhash",
+                "Crowdstrike",
+                "Coalition, Inc.",
+                "Goldman Sachs",
+                "Node.js third-party modules",
+                "Ed",
+                "RecargaPay",
+                "Valve",
+                "Sony",
+                "Data Processing (IBB)",
+                "JohnBlackbourn",
+                "TTS Bug Bounty",
+                "Deliveroo",
+                "Infogram",
+                "Hyperledger",
+                "Monero",
+                "Vanilla",
+                "Bitwarden",
+                "delight.im",
+                "Upserve ",
+                "WakaTime",
+                "Redtube",
+                "Bumble",
+                "Spotify",
+                "Cuvva",
+                "Teradici",
+                "Stellar.org",
+                "Rocket.Chat",
+                "Homebrew",
+                "Weblate",
+                "Shipt",
+                "Intel Corporation",
+                "Disclosure Assistance",
+                "Lyst",
+                "Alvosec",
+                "Showmax",
+                "YouPorn",
+                "Discourse",
+                "Nintendo",
+                "U.S. Dept Of Defense",
+                "Plaid",
+                "SEMrush",
+                "Quora",
+                "Brave Software",
+                "Quantopian",
+                "PortSwigger Web Security",
+                "RubyGems",
+                "Files.com",
+                "OWOX, Inc.",
+                "Blockstack",
+                "WordPress",
+                "Aspen",
+                "GoCD",
+                "VHX",
+                "Nextcloud",
+                "ICQ",
+                "SecNews",
+                "Starbucks",
+                "Ruby",
+                "Rockstar Games",
+                "GitHub",
+                "Open-Xchange",
+                "LocalTapiola",
+                "bitaccess",
+                "Paragon Initiative Enterprises",
+                "Bime",
+                "Zomato",
+                "New Relic",
+                "Unikrn",
+                "General Motors",
+                "Tor",
+                "GlobaLeaks",
+                "Binary.com",
+                "CodeIgniter",
+                "Maximum",
+                "Kaspersky",
+                "Algolia",
+                "ownCloud",
+                "Grab",
+                "CERT/CC",
+                "Keybase",
+                "Revive Adserver",
+                "ok.ru",
+                "Badoo",
+                "Pornhub",
+                "Moneybird",
+                "Dashlane",
+                "Coursera",
+                "Robinhood",
+                "VK.com",
+                "Udemy",
+                "Zendesk",
+                "Shopify",
+                "Mapbox",
+                "Airbnb",
+                "Airtable",
+                "Adobe",
+                "FormAssembly",
+                "Blockchain",
+                "Ubiquiti Inc.",
+                "Snapchat",
+                "Imgur",
+                "Uber",
+                "Instacart",
+                "Yelp",
+                "Informatica",
+                "QIWI",
+                "Vimeo",
+                "WordPoints",
+                "Dropbox",
+                "Eobot",
+                "GlassWire",
+                "Greenhouse.io",
+                "ExpressionEngine",
+                "GitLab",
+                "Harvest",
+                "WePay",
+                "Twitter",
+                "Urban Dictionary",
+                "Ian Dunn",
+                "Cloudflare Vulnerability Disclosure",
+                "Mail.ru",
+                "Automattic",
+                "IRCCloud",
+                "Khan Academy",
+                "Coinbase",
+                "concrete5",
+                "Slack",
+                "Verizon Media",
+                "The Internet",
+                "Phabricator",
+                "Ruby on Rails",
+                "Python (IBB)",
+                "Django",
+                "Nginx (IBB)",
+                "OpenSSL (IBB)",
+                "PHP (IBB)",
+                "Perl (IBB)",
+                "Apache httpd (IBB)",
+                "HackerOne"
+        ],
+/*
+        https://bugcrowd.com/programs?sort[]=promoted-desc&hidden[]=false&waitlistable[]=false
+        vendor_panels = document.getElementsByClassName('bc-panel__title')
+        vendor_names = []
+        vendor_panels.forEach((item) => { vendor_names.push(item.firstChild.text) })
+        copy(vendor_names)
+        NOTE: This method also captures an undefined value in the first element because 'bc-panel__title' matches something that contains your username, but it doesn't have a child element.
+*/
+        'Bugcrowd': [
+                "Unilever Vulnerability Disclosure Program",
+                "TransferWise",
+                "Seeking specialists",
+                "Takeaway.com",
+                "Files.com",
+                "Web, API, iOS and Android Applications in Ongoing Bounty Program",
+                "Xfinity Home & xFi",
+                "Algorand",
+                "Lime",
+                "Cryptocurrency payment system",
+                " Comcast Xfinity Vulnerability Disclosure Program",
+                "Cloudinary",
+                "Vonage",
+                "Boozt Fashion",
+                "Privacy matters!",
+                "BitDiscovery",
+                "Blend",
+                "Simple",
+                "Private program for web data visualizer plug-ins",
+                "Gusto",
+                "ConvertKit Vulnerability Disclosure Program",
+                "Zilliqa",
+                "NeoPhotonics",
+                "Ibotta",
+                "SDKs and APIs Oh My!",
+                "Bigbank",
+                "TripAdvisor ",
+                "MasterCard VDP",
+                "Centrify",
+                "Naspers",
+                "Pinterest",
+                "Atlassian",
+                "HealthifyMe's Vulnerability Disclosure Program",
+                "SEEK ",
+                "Okta",
+                "You Need a Budget (YNAB)",
+                "Personal Capital",
+                "Acorns Grow, Inc.",
+                "Better ",
+                "Bitdefender",
+                "Algorand",
+                "Cloudways",
+                "RealSelf",
+                "Credit Karma",
+                "A design application for MacOS is looking to secure its assets - help out and receive rewards of up to $2,500!",
+                "SoundCloud",
+                "WP Engine",
+                "iRobot",
+                "Skyscanner",
+                "Mastercard (VDP Extension)",
+                "Upwork",
+                "A leading web hosting provider",
+                "Blue Jeans Network",
+                "StackPath",
+                "No hardware, no problem! Route your submissions here!",
+                "Caffeine",
+                "Dell Technologies",
+                "Redox",
+                "Opsgenie",
+                "Sprout Social",
+                "Telefónica Germany",
+                "Today I Learned...",
+                "Zynga Whitehat",
+                "Western Union Kudos ",
+                "Twilio",
+                "Netflix",
+                "Directly",
+                "The leader in transport fuels.",
+                "IOTA Trinity Wallet",
+                "Mailgun ",
+                "Magic Leap One - Cloud Ecosystem",
+                "Magic Leap One - Device",
+                "Leading digital transaction provider",
+                "PlanetHoster",
+                "Arkose Labs",
+                "USAA",
+                "PureVPN",
+                "Trello",
+                "Binance",
+                "Segment",
+                "Overstock's Vulnerability Disclosure Page!",
+                "Arlo Kudos Rewards",
+                "Arlo Cash Rewards",
+                "UNDER ARMOUR",
+                "Keeper Security Public Bounty Program",
+                "Moneytree KK",
+                "Square Open Source",
+                "Etsy",
+                "Cisco Meraki",
+                "GO-JEK",
+                "Bitdefender Box v2",
+                "SmartThings Vulnerability Disclosure",
+                "Optimizely",
+                "Square",
+                "Fitbit",
+                "Sophos",
+                "SAP Concur",
+                "Do you like games?",
+                "eero",
+                "NETGEAR Kudos Rewards",
+                "NETGEAR Cash Rewards",
+                " 1Password",
+                "Cloud Security Platform",
+                "Intercom",
+                "Payment platform looking for bug hunters!",
+                "Analytics-driven SEIM",
+                "HubSpot Responsible Disclosure",
+                "InVision ",
+                "LastPass",
+                "OWASP Java Encoder",
+                "Constant Contact, Inc.",
+                "mastercard",
+                "Fiat Chrysler Automobiles",
+                "OWASP Java HTML Sanitizer",
+                "OWASP CSRFGuard",
+                "OWASP ZAP",
+                "Kenna Security",
+                "Tesla",
+                "Socrata",
+                "(ISC)²",
+                "SecureDrop",
+                "Indeed",
+                "Western Union",
+                "FoxyCart",
+                "Appliances - Barracuda Networks, Inc.",
+                "Humble Bundle",
+                "Pantheon",
+                "Statuspage",
+                "WHMCS Client Management Portal",
+                "Hack Me!",
+                "Bugcrowd"
+        ],
+/*
+        Programs are split out into X number per page and rendered server side
+        I'm too lazy to pull each page to parse the html so...
+        All openbugbounty programs are hereby unnamed
+        Submit a pull request if you give a shit
+*/
+        'OpenBugBounty': [
+                'an unnamed program'
+        ]
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+        buildRandomBugBounty(methods, payouts, platform_weights, bounty_platforms)
+});
+
+var bountybutton = document.getElementById("bountyPls")
+bountybutton.addEventListener("click", function() {
+        buildRandomBugBounty(methods, payouts, platform_weights, bounty_platforms)
+});
+</script>
+</html>
